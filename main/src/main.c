@@ -1,13 +1,4 @@
-
-/**
- * @file main
- *
- */
-
-/*********************
- *      INCLUDES
- *********************/
-#define _DEFAULT_SOURCE /* needed for usleep() */
+#define _DEFAULT_SOURCE
 #include <stdlib.h>
 #include <stdio.h>
 #include <unistd.h>
@@ -16,118 +7,70 @@
 #include "lvgl/examples/lv_examples.h"
 #include "lvgl/demos/lv_demos.h"
 
-/*********************
- *      DEFINES
- *********************/
+/* Prototüübid */
+static lv_disp_t * hal_init(int32_t w, int32_t h);
+static void button_event_cb(lv_event_t * e);
 
-/**********************
- *      TYPEDEFS
- **********************/
+/* Globaalne labeli viide */
+static lv_obj_t * label;
 
-/**********************
- *  STATIC PROTOTYPES
- **********************/
-static lv_display_t * hal_init(int32_t w, int32_t h);
-
-/**********************
- *  STATIC VARIABLES
- **********************/
-
-/**********************
- *      MACROS
- **********************/
-
-/**********************
- *   GLOBAL FUNCTIONS
- **********************/
-
-extern void freertos_main(void);
-
-/*********************
- *      DEFINES
- *********************/
-
-/**********************
- *      TYPEDEFS
- **********************/
-
-/**********************
- *      VARIABLES
- **********************/
-
-/**********************
- *  STATIC PROTOTYPES
- **********************/
-
-/**********************
- *   GLOBAL FUNCTIONS
- **********************/
-
+/* Main */
 int main(int argc, char **argv)
 {
-  (void)argc; /*Unused*/
-  (void)argv; /*Unused*/
+    (void)argc;
+    (void)argv;
 
-  /*Initialize LVGL*/
-  lv_init();
+    lv_init();
+    hal_init(1480, 320);
 
-  /*Initialize the HAL (display, input devices, tick) for LVGL*/
-  hal_init(320, 480);
+    /* Loo nupp */
+    lv_obj_t * btn = lv_btn_create(lv_scr_act());
+    lv_obj_center(btn);
+    lv_obj_add_event_cb(btn, button_event_cb, LV_EVENT_CLICKED, NULL);
 
-  #if LV_USE_OS == LV_OS_NONE
+    /* Loo silt */
+    label = lv_label_create(btn);
+    lv_label_set_text(label, "Tere, maailm!");
+    lv_obj_center(label);
 
-  lv_demo_widgets();
+    while (1) {
+        lv_timer_handler();
+        usleep(5000);
+    }
 
-  while(1) {
-    /* Periodically call the lv_task handler.
-     * It could be done in a timer interrupt or an OS task too.*/
-    lv_timer_handler();
-    usleep(5 * 1000);
-  }
-
-  #elif LV_USE_OS == LV_OS_FREERTOS
-
-  /* Run FreeRTOS and create lvgl task */
-  freertos_main();
-
-  #endif
-
-  return 0;
+    return 0;
 }
 
-/**********************
- *   STATIC FUNCTIONS
- **********************/
-
-/**
- * Initialize the Hardware Abstraction Layer (HAL) for the LVGL graphics
- * library
- */
-static lv_display_t * hal_init(int32_t w, int32_t h)
+/* Nupu callback */
+static void button_event_cb(lv_event_t * e)
 {
+    lv_label_set_text(label, "Nuppu vajutati!");
+}
 
-  lv_group_set_default(lv_group_create());
+/* HAL init */
+static lv_disp_t * hal_init(int32_t w, int32_t h)
+{
+    lv_group_set_default(lv_group_create());
 
-  lv_display_t * disp = lv_sdl_window_create(w, h);
+    lv_disp_t * disp = lv_sdl_window_create(w, h);
 
-  lv_indev_t * mouse = lv_sdl_mouse_create();
-  lv_indev_set_group(mouse, lv_group_get_default());
-  lv_indev_set_display(mouse, disp);
-  lv_display_set_default(disp);
+    lv_indev_t * mouse = lv_sdl_mouse_create();
+    lv_indev_set_group(mouse, lv_group_get_default());
+    lv_indev_set_display(mouse, disp);
+    lv_disp_set_default(disp);
 
-  LV_IMAGE_DECLARE(mouse_cursor_icon); /*Declare the image file.*/
-  lv_obj_t * cursor_obj;
-  cursor_obj = lv_image_create(lv_screen_active()); /*Create an image object for the cursor */
-  lv_image_set_src(cursor_obj, &mouse_cursor_icon);           /*Set the image source*/
-  lv_indev_set_cursor(mouse, cursor_obj);             /*Connect the image  object to the driver*/
+    LV_IMAGE_DECLARE(mouse_cursor_icon);
+    lv_obj_t * cursor_obj = lv_img_create(lv_scr_act());
+    lv_img_set_src(cursor_obj, &mouse_cursor_icon);
+    lv_indev_set_cursor(mouse, cursor_obj);
 
-  lv_indev_t * mousewheel = lv_sdl_mousewheel_create();
-  lv_indev_set_display(mousewheel, disp);
-  lv_indev_set_group(mousewheel, lv_group_get_default());
+    lv_indev_t * mousewheel = lv_sdl_mousewheel_create();
+    lv_indev_set_display(mousewheel, disp);
+    lv_indev_set_group(mousewheel, lv_group_get_default());
 
-  lv_indev_t * kb = lv_sdl_keyboard_create();
-  lv_indev_set_display(kb, disp);
-  lv_indev_set_group(kb, lv_group_get_default());
+    lv_indev_t * kb = lv_sdl_keyboard_create();
+    lv_indev_set_display(kb, disp);
+    lv_indev_set_group(kb, lv_group_get_default());
 
-  return disp;
+    return disp;
 }

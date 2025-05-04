@@ -1,12 +1,30 @@
-# Ignore build folder
+# Ignore build outputs
 build/
 bin/
+*.o
+*.obj
+*.so
+*.a
+*.exe
+*.out
 
-# Ignore UI folder, this should be commited in its own repository
+# CMake temporary files
+CMakeFiles/
+CMakeCache.txt
+Makefile
+cmake_install.cmake
+compile_commands.json
+
+# UI folder (handled separately)
 ui/
 
-# Ignore all dot folders, with below exceptions
-.*/
+# VSCode settings
+.vscode/
 
-# VSCode
-.vscode
+# macOS specific
+.DS_Store
+
+# Ignore all dot folders except .vscode and .github
+.*
+!.vscode/
+!.github/
