@@ -30,7 +30,7 @@ int main(int argc, char **argv)
 
     /* Loo silt */
     label = lv_label_create(btn);
-    lv_label_set_text(label, "Tere, maailm!");
+    lv_label_set_text(label, "Tere, Ahto!");
     lv_obj_center(label);
 
     while (1) {
